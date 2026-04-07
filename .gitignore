@@ -3,9 +3,28 @@
 
 # Log file
 *.log
+============ADDED===============
+# Eclipse files
+.project
+.classpath
+.settings
+/bin/
 
-# BlueJ files
+# intellij files
+.idea
+
+#bluej
+package.bluej
 *.ctxt
+
+# output files
+*.class
+
+# system files
+desktop.ini
+*.swp
+.DS_Store
+================================
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
