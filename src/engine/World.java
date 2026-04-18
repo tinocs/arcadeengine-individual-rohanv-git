@@ -1,10 +1,11 @@
 /*
     Name:       Rohan Vellamcheti
-    Date:       (submission date)
+    Date:       4/18
     Period:     P1 APCS- Ferrante
 
-    Is this lab fully working?  (Yes/No)  If not, explain:
-    If resubmitting, explain what was wrong and what you fixed.
+    Is this lab fully working?  Yes, resubmitting because i didn't test and now 
+    i fixed the getObjectsAt to check the parents x,y not the actors x,y. i also 
+    fixed the width and height listenres to only call onDimensionsInitialized once
  */
 
 package engine;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
@@ -24,50 +26,51 @@ public abstract class World extends Pane {
 	boolean heightSet;
 	Set<KeyCode> key;
 	AnimationTimer timer;
-
+	boolean dimensionsInitialized;
+	
 	public World() {
 		key = new HashSet<KeyCode>();
-
-		widthProperty().addListener((obs, oldVal, newVal) -> {
-			widthSet = (newVal.doubleValue() > 0) ? true : false;
-
-			if (widthSet == true && heightSet == true) {
-				onDimensionsInitialized();
-			}
-		});
 		
-		heightProperty().addListener((obs, oldVal, newVal) -> {
-			heightSet = (newVal.doubleValue() > 0) ? true : false;
-
-			if (widthSet == true && heightSet == true) {
-				onDimensionsInitialized();
-			}
+		widthProperty().addListener(e -> {
+		    widthSet = getWidth() > 0;
+		    if (widthSet && heightSet && !dimensionsInitialized) {
+		        dimensionsInitialized = true;
+		        onDimensionsInitialized();
+		    }
 		});
-		
+
+		heightProperty().addListener(e -> {
+		    heightSet = getHeight() > 0;
+		    if (widthSet && heightSet && !dimensionsInitialized) {
+		        dimensionsInitialized = true;
+		        onDimensionsInitialized();
+		    }
+		});
+
 		sceneProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
 				requestFocus();
 			}
 		});
-		
+
 		setOnKeyPressed(e -> {
-			   key.add(e.getCode());
+			key.add(e.getCode());
 		});
-		
+
 		setOnKeyReleased(e -> {
 			key.remove(e.getCode());
 		});
-		
+
 		timer = new AnimationTimer() {
-		    public void handle(long now) {
-		    	act(now);
-		    	ArrayList<Actor> arr = (ArrayList<Actor>) getObjects(Actor.class);
-		    	for (Actor actor : arr) {
-		    		if (getChildren().contains(actor)) {
-		    			actor.act(now);
-		    		}
-		    	}
-		    }
+			public void handle(long now) {
+				act(now);
+				ArrayList<Actor> arr = (ArrayList<Actor>) getObjects(Actor.class);
+				for (Actor actor : arr) {
+					if (getChildren().contains(actor)) {
+						actor.act(now);
+					}
+				}
+			}
 		};
 	}
 
@@ -94,7 +97,7 @@ public abstract class World extends Pane {
 		ArrayList<A> arr = new ArrayList<>();
 
 		for (Node actor : this.getChildren()) {
-			if (cls.isInstance(actor) && actor.contains(x, y)) {
+			if (cls.isInstance(actor) && actor.getBoundsInParent().contains(x, y)) {
 				arr.add((A) actor);
 			}
 		} 
@@ -103,26 +106,27 @@ public abstract class World extends Pane {
 	}
 
 	public abstract void onDimensionsInitialized();
-	
+
 	public void start() {
-	    timer.start();
-	    timerRunning = true;
+		timer.start();
+		timerRunning = true;
 	}
 
 	public void stop() {
-	    timer.stop();
-	    timerRunning = false;
+		timer.stop();
+		timerRunning = false;
 	}
 
 	public boolean isStopped() {
-	    return !timerRunning;
+		return !timerRunning;
 	}
 
 	public void remove(Actor actor) {
-	    getChildren().remove(actor);
+		getChildren().remove(actor);
+		actor.setWorld(null);
 	}
 
 	public boolean isKeyPressed(KeyCode code) {
-	    return key.contains(code);
+		return key.contains(code);
 	}
 }

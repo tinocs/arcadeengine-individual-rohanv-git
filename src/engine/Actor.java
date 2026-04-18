@@ -1,16 +1,18 @@
 /*
     Name:       Rohan Vellamcheti
-    Date:       (submission date)
+    Date:       4/18
     Period:     P1 APCS- Ferrante
 
-    Is this lab fully working?  (Yes/No)  If not, explain:
-    If resubmitting, explain what was wrong and what you fixed.
+    Is this lab fully working?  Yes, resubmitting because i accidently missed adding some methods 
+    and added them in
 */
 
 package engine;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import javafx.geometry.Bounds;
 import javafx.scene.image.ImageView;
 
 public abstract class Actor extends ImageView implements javafx.css.Styleable, javafx.event.EventTarget {
@@ -27,8 +29,27 @@ public abstract class Actor extends ImageView implements javafx.css.Styleable, j
 	}
 	
 	public double getHeight() {
-		return getFitHeight();
+		Bounds bound = getBoundsInParent();
+		return bound.getHeight();
 	}
+	
+	public double getWidth() {
+		Bounds bound = getBoundsInParent();
+		return bound.getWidth();
+	}
+	
+	public void move(double dx, double dy) {
+		setX(getX() + dx);
+		setY(getY() + dy);
+	}
+	
+	public <A extends Actor> A getOneIntersectingObject(java.lang.Class<A> cls) {
+		List<A> list = getIntersectingObjects(cls);
+		
+		return (list.size() == 0) ? null : list.get(0);
+	}
+	
+	
 	
 	public void setWorld(World world) {
 		this.world = world; 
