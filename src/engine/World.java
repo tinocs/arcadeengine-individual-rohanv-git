@@ -102,7 +102,6 @@ public abstract class World extends Pane {
 			}
 		} 
 		return arr;
-
 	}
 
 	public abstract void onDimensionsInitialized();
