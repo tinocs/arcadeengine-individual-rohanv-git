@@ -15,7 +15,7 @@ public class Ball extends Actor {
 	private double dx, dy;
 
 	public Ball() {
-		String path = getClass().getClassLoader().getResource("breakresources/ball.png").toString();
+		String path = getClass().getClassLoader().getResource("breakoutresources/ball.png").toString();
 		Image ballImg = new Image(path);
 		setImage(ballImg);
 		dx = 5;
@@ -25,11 +25,15 @@ public class Ball extends Actor {
 	@Override
 	public void act(long now) {
 		move(dx, dy);
-		if (getX() > getWorld().getWidth() - getHeight()|| getX() < 0) {
+		if (getX() > getWorld().getWidth() - getWidth()|| getX() < 0) {
 			dx = -dx;
 		}
 		
 		if (getY() > getWorld().getHeight() - getHeight() || getY() < 0) {
+			dy = -dy;
+		}
+		
+		if (getOneIntersectingObject(Paddle.class) != null) {
 			dy = -dy;
 		}
 

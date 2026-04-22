@@ -11,17 +11,29 @@ package breakout;
 import engine.World;
 
 public class BallWorld extends World {
+	
+	public BallWorld(int w, int h) {
+		setPrefSize(w,h);
+	}
 
 	@Override
 	public void act(long now) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onDimensionsInitialized() {
-		// TODO Auto-generated method stub
+		Ball ball = new Ball();
+		add(ball);
+		ball.setX(getWidth() / 2 - ball.getWidth() / 2);
+		ball.setY(getHeight() / 2 - ball.getHeight() /2);
 		
+		Paddle paddle = new Paddle();
+		add(paddle);
+		paddle.setX(getWidth() / 2 - paddle.getWidth() / 2);
+		paddle.setY(getHeight() * 0.8 - paddle.getHeight() / 2);
+		
+		start();
 	}
 	
 }
