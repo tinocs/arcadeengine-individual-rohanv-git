@@ -15,10 +15,14 @@ import java.util.Scanner;
 import engine.Sound;
 import engine.World;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -46,7 +50,7 @@ public class BallWorld extends World {
 		this.numBricks = numBricks;
 		this.stage = stage;
 		this.scene = scene;
-		lives = 3;
+		lives = 1;
 		isPaused = true;
 
 	}
@@ -65,30 +69,50 @@ public class BallWorld extends World {
 			readBricks();
 		}
 		if (level > 2 && !isGameOver) {
-		    isGameOver = true;
-		    stop();
-		    wonSound.play();
-		    stage.setScene(scene);
+			isGameOver = true;
+			stop();
+			wonSound.play();
+			stage.setScene(scene);
+			showGameOver(true);
 		}
 		if (lives < 1 && !isGameOver) {
-		    isGameOver = true;
-		    stop();
-		    lostSound.play();
-		    stage.setScene(scene);
+			isGameOver = true;
+			stop();
+			lostSound.play();
+			showGameOver(false);
 		}
+	}
+
+	public void showGameOver(boolean won) {
+	    VBox root = new VBox(20);
+	    root.setStyle("-fx-background-color: black;");
+	    root.setAlignment(Pos.CENTER);
+	    
+	    Text msg = new Text(won ? "You Win!" : "Game Over");
+	    msg.setFill(Color.RED);
+	    msg.setFont(Font.font("Courier New", 64));
+	    
+	    Button menuBtn = new Button("Return to Menu");
+	    menuBtn.setOnAction(e -> stage.setScene(scene));
+	    
+	    root.getChildren().addAll(msg, menuBtn);
+	    
+	    Scene gameOverScene = new Scene(root, 800, 600);
+	    stage.setScene(gameOverScene);
+	    stage.show();
 	}
 
 	public void updateLives() {
 		lives--;
 		livesText.setText("Lives: " + lives);
 		setPaused(true);
-	    getChildren().add(paused);
-	    ball.setX(getWidth() / 2 - ball.getWidth() / 2);
+		getChildren().add(paused);
+		ball.setX(getWidth() / 2 - ball.getWidth() / 2);
 		ball.setY(getHeight() * 0.75 - ball.getHeight() / 2);
 		paddle.setX(getWidth() / 2 - paddle.getWidth() / 2);
 		paddle.setY(getHeight() * 0.8 - paddle.getHeight() / 2);
 		lifeSound.play();
-		
+
 	}
 
 	public boolean isPaused() {
@@ -140,7 +164,7 @@ public class BallWorld extends World {
 		livesText.setX(getWidth() - 200);
 		livesText.setY(25);
 		getChildren().add(livesText);
-		
+
 		//Score
 		score = new Score();
 		score.setX(getWidth() - 100);
@@ -148,7 +172,7 @@ public class BallWorld extends World {
 		getChildren().add(score);		
 
 		start();
-		
+
 		//Paused
 		//setEffect(new GaussianBlur(10));
 		paused = new Text("Game paused \nClick space to start");
