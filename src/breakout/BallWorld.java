@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import engine.Sound;
 import engine.World;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -34,6 +35,10 @@ public class BallWorld extends World {
 	private Text livesText;
 	private Ball ball;
 	private Paddle paddle;
+	private Sound lostSound = new Sound("ballbounceresources/game_lost.wav");
+	private Sound lifeSound = new Sound("ballbounceresources/lose_life.wav");
+	private Sound wonSound = new Sound("ballbounceresources/game_won.wav");
+	private boolean isGameOver = false;
 
 	public BallWorld(int w, int h, int numBricks, Stage stage, Scene scene) {
 		setPrefSize(w,h);
@@ -59,9 +64,17 @@ public class BallWorld extends World {
 			level++;
 			readBricks();
 		}
-		if (level > 2 || lives < 1) {
-			stop();
-			stage.setScene(scene);
+		if (level > 2 && !isGameOver) {
+		    isGameOver = true;
+		    stop();
+		    wonSound.play();
+		    stage.setScene(scene);
+		}
+		if (lives < 1 && !isGameOver) {
+		    isGameOver = true;
+		    stop();
+		    lostSound.play();
+		    stage.setScene(scene);
 		}
 	}
 
@@ -74,6 +87,8 @@ public class BallWorld extends World {
 		ball.setY(getHeight() * 0.75 - ball.getHeight() / 2);
 		paddle.setX(getWidth() / 2 - paddle.getWidth() / 2);
 		paddle.setY(getHeight() * 0.8 - paddle.getHeight() / 2);
+		lifeSound.play();
+		
 	}
 
 	public boolean isPaused() {
@@ -136,7 +151,7 @@ public class BallWorld extends World {
 		
 		//Paused
 		//setEffect(new GaussianBlur(10));
-		paused = new Text("Game paused \nClick space to unpause");
+		paused = new Text("Game paused \nClick space to start");
 		paused.setFont(Font.font("Courier New", 48));
 		paused.setX(50);
 		paused.setY(getHeight() / 2);
