@@ -50,7 +50,7 @@ public class BallWorld extends World {
 		this.numBricks = numBricks;
 		this.stage = stage;
 		this.scene = scene;
-		lives = 1;
+		lives = 3;
 		isPaused = true;
 
 	}
