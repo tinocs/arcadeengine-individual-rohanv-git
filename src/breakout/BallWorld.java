@@ -15,6 +15,7 @@ import java.util.Scanner;
 import engine.World;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
@@ -25,13 +26,16 @@ public class BallWorld extends World {
 	private int numBricks;
 	private Stage stage;
 	private Scene scene;
+	private int lives;
 
 	public BallWorld(int w, int h, int numBricks, Stage stage, Scene scene) {
 		setPrefSize(w,h);
-		level = 3;
+		level = 1;
 		this.numBricks = numBricks;
 		this.stage = stage;
 		this.scene = scene;
+		lives = 3;
+		
 	}
 
 	@Override
@@ -40,9 +44,14 @@ public class BallWorld extends World {
 			level++;
 			readBricks();
 		}
-		if (level > 2) {
+		if (level > 2 || lives < 1) {
+			stop();
 			stage.setScene(scene);
 		}
+	}
+	
+	public void updateLives() {
+		lives--;
 	}
 
 	@Override

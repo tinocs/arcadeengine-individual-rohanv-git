@@ -29,16 +29,9 @@ public class Breakout extends Application {
 		stage.setWidth(800);
 		stage.setHeight(600);
 		
-		BorderPane root2 = new BorderPane();
-		Scene scene2 = new Scene(root2);
-		
 		// TITLE
 		VBox root1 = new VBox();
 		Button playBtn = new Button("Play");
-		playBtn.setOnAction(e -> {
-			stage.setScene(scene2);
-			stage.show();
-		});
 		
 		String path = getClass().getClassLoader().getResource("breakoutresources/title.png").toString();
 		Image titleImg = new Image(path);
@@ -56,9 +49,14 @@ public class Breakout extends Application {
 		stage.show();
 		
 		// BREAKOUT
-
-		BallWorld ballWorld = new BallWorld(800,600, 10, stage, scene1);
-		root2.setCenter(ballWorld);
+		playBtn.setOnAction(e -> {
+			BorderPane root2 = new BorderPane();
+			BallWorld ballWorld = new BallWorld(800,600, 10, stage, scene1);
+			root2.setCenter(ballWorld);
+			Scene scene2 = new Scene(root2);
+			stage.setScene(scene2);
+			stage.show();
+		});
 		
 	}
 
