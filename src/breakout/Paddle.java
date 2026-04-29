@@ -21,18 +21,24 @@ public class Paddle extends Actor {
 
 	@Override
 	public void act(long now) {
-		if (((BallWorld) getWorld()).isPaused()) {
-			
-		} else {
+		//if (paddle is moving to the right AND the paddle's x-coord is greater than midpoint of the Scene)
+		//scroll
+		//if (paddle is moving to the left AND the paddle's x-coord is less than the midpoint of the Scene)
+			//scroll
+		
 			if (getWorld().isKeyPressed(KeyCode.LEFT)) {
 				move(-5, 0);
+				if (getX() < getWorld().getWidth() / 2) {
+					((BallWorld) getWorld()).scroll(-5);
+				}
 			}
 			
 			if (getWorld().isKeyPressed(KeyCode.RIGHT)) {
 				move(5, 0);
+				if (getX() > getWorld().getWidth() / 2) {
+					((BallWorld) getWorld()).scroll(5);
+				}
 			}
-		}
 		
 	}
-
 }

@@ -21,7 +21,7 @@ public class Score extends Text {
 	}
 	
 	public void updateDisplay() {
-		setText("" + score);
+		setText("Score: " + score);
 	}
 	
 	public int getScore() {

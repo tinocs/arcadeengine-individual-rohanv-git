@@ -10,15 +10,19 @@ package breakout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
+import engine.Actor;
 import engine.Sound;
 import engine.World;
+import javafx.animation.Animation;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -30,7 +34,6 @@ import javafx.stage.Stage;
 public class BallWorld extends World {
 	private Score score;
 	private int level;
-	private int numBricks;
 	private Stage stage;
 	private Scene scene;
 	private int lives;
@@ -43,16 +46,20 @@ public class BallWorld extends World {
 	private Sound lifeSound = new Sound("ballbounceresources/lose_life.wav");
 	private Sound wonSound = new Sound("ballbounceresources/game_won.wav");
 	private boolean isGameOver = false;
+	private ArrayList<Animation> animations = new ArrayList<>();
+	private Image bgImg = new Image("breakoutresources/background.png");
+	private ImageView bgView = new ImageView(bgImg);
+	private int w, h;
 
-	public BallWorld(int w, int h, int numBricks, Stage stage, Scene scene) {
+	public BallWorld(int w, int h, Stage stage, Scene scene) {
 		setPrefSize(w,h);
+		this.w = w;
+		this.h = h;
 		level = 1;
-		this.numBricks = numBricks;
 		this.stage = stage;
 		this.scene = scene;
 		lives = 3;
 		isPaused = true;
-
 	}
 
 
@@ -67,6 +74,8 @@ public class BallWorld extends World {
 		if (getObjects(Brick.class).size() == 0) {
 			level++;
 			readBricks();
+			lives = 4;
+			updateLives();
 		}
 		if (level > 2 && !isGameOver) {
 			isGameOver = true;
@@ -84,22 +93,22 @@ public class BallWorld extends World {
 	}
 
 	public void showGameOver(boolean won) {
-	    VBox root = new VBox(20);
-	    root.setStyle("-fx-background-color: black;");
-	    root.setAlignment(Pos.CENTER);
-	    
-	    Text msg = new Text(won ? "You Win!" : "Game Over");
-	    msg.setFill(Color.RED);
-	    msg.setFont(Font.font("Courier New", 64));
-	    
-	    Button menuBtn = new Button("Return to Menu");
-	    menuBtn.setOnAction(e -> stage.setScene(scene));
-	    
-	    root.getChildren().addAll(msg, menuBtn);
-	    
-	    Scene gameOverScene = new Scene(root, 800, 600);
-	    stage.setScene(gameOverScene);
-	    stage.show();
+		VBox root = new VBox(20);
+		root.setStyle("-fx-background-color: black;");
+		root.setAlignment(Pos.CENTER);
+
+		Text msg = new Text(won ? "You Win!" : "Game Over");
+		msg.setFill(Color.RED);
+		msg.setFont(Font.font("Courier New", 64));
+
+		Button menuBtn = new Button("Return to Menu");
+		menuBtn.setOnAction(e -> stage.setScene(scene));
+
+		root.getChildren().addAll(msg, menuBtn);
+
+		Scene gameOverScene = new Scene(root, 800, 600);
+		stage.setScene(gameOverScene);
+		stage.show();
 	}
 
 	public void updateLives() {
@@ -112,7 +121,7 @@ public class BallWorld extends World {
 		paddle.setX(getWidth() / 2 - paddle.getWidth() / 2);
 		paddle.setY(getHeight() * 0.8 - paddle.getHeight() / 2);
 		lifeSound.play();
-
+		stopAllAnimations();
 	}
 
 	public boolean isPaused() {
@@ -125,17 +134,22 @@ public class BallWorld extends World {
 
 	@Override
 	public void onDimensionsInitialized() {
-		// Ball
-		ball = new Ball();
-		add(ball);
-		ball.setX(getWidth() / 2 - ball.getWidth() / 2);
-		ball.setY(getHeight() * 0.7 - ball.getHeight() / 2);
+		//Background
+		getChildren().add(bgView);
+		bgView.setX(-(bgImg.getWidth() - getWidth())/ 2);
+		bgView.setY(0);
 
 		// Paddle
 		paddle = new Paddle();
 		add(paddle);
 		paddle.setX(getWidth() / 2 - paddle.getWidth() / 2);
 		paddle.setY(getHeight() * 0.8 - paddle.getHeight() / 2);
+
+		// Ball
+		ball = new Ball(paddle);
+		add(ball);
+		ball.setX(getWidth() / 2 - ball.getWidth() / 2);
+		ball.setY(getHeight() * 0.7 - ball.getHeight() / 2);
 
 		// Paddle movement
 		setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -161,13 +175,13 @@ public class BallWorld extends World {
 		// Lives
 		livesText = new Text("Lives:	" + lives);
 		livesText.setFont(new Font(livesText.getFont().getSize() + 5));
-		livesText.setX(getWidth() - 200);
+		livesText.setX(100);
 		livesText.setY(25);
 		getChildren().add(livesText);
 
 		//Score
 		score = new Score();
-		score.setX(getWidth() - 100);
+		score.setX(getWidth() - 200);
 		score.setY(25);
 		getChildren().add(score);		
 
@@ -175,9 +189,9 @@ public class BallWorld extends World {
 
 		//Paused
 		//setEffect(new GaussianBlur(10));
-		paused = new Text("Game paused \nClick space to start");
-		paused.setFont(Font.font("Courier New", 48));
-		paused.setX(50);
+		paused = new Text("Game paused. Click space to start");
+		paused.setFont(Font.font("Courier New", 24));
+		paused.setX(getWidth() / 2 - paused.getLayoutBounds().getWidth() / 2);
 		paused.setY(getHeight() / 2);
 		getChildren().add(paused);
 
@@ -217,14 +231,12 @@ public class BallWorld extends World {
 						add(brick);
 						brick.setX((j * brick.getWidth()) + (getWidth() / 2 - ((bricks.length)*brick.getWidth())) - brick.getWidth()/2);
 						brick.setY((i * (brick.getHeight()) + (getHeight() / 2 - (bricks[0].length/2)*brick.getWidth())));
-						numBricks++;
 					} else if (bricks[i][j] == 2) {
 						String path = getClass().getClassLoader().getResource("breakoutresources/brick2.png").toString();
 						brick.setImage(new Image(path));
 						add(brick);
 						brick.setX((j * brick.getWidth()) + (getWidth() / 2 - ((bricks.length)*brick.getWidth())) - brick.getWidth()/2);
 						brick.setY((i * (brick.getHeight()) + (getHeight() / 2 - (bricks[0].length/2)*brick.getWidth())));
-						numBricks++;
 					}
 				}
 			}
@@ -239,4 +251,33 @@ public class BallWorld extends World {
 		return score;
 	}
 
+	public void addAnimation(Animation a) {
+		animations.add(a);
+	}
+
+	public void stopAllAnimations() {
+		for (int i = animations.size() - 1; i >= 0; i --) {
+			animations.get(i).stop();
+			animations.remove(i);
+		}
+	}
+
+	public void removeAnimation(Animation a) {
+		animations.remove(animations.indexOf(a));
+	}
+
+	public void scroll(double dx) {
+		if (bgView.getX() - dx <= 0 && bgView.getX() - dx >= w - bgImg.getWidth()) {
+			bgView.setX(bgView.getX() - dx);
+
+			for (Actor a : getObjects(Actor.class)) {
+				a.setX(a.getX() - dx);
+			}
+		}
+
+	}
+
+	public Stage getStage() {
+		return stage;
+	}
 }

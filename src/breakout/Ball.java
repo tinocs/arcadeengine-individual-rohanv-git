@@ -20,24 +20,35 @@ public class Ball extends Actor {
 	private double dx, dy;
 	private Sound bounceSound = new Sound("ballbounceresources/ball_bounce.wav");
 	private Sound brickSound = new Sound("ballbounceresources/brick_hit.wav");
+	Paddle pad;
 	
 
-	public Ball() {
+	public Ball(Paddle pad) {
 		String path = getClass().getClassLoader().getResource("breakoutresources/ball.png").toString();
 		Image ballImg = new Image(path);
 		setImage(ballImg);
 		dx = 5;
 		dy = -5;
+		this.pad = pad;
 	}
 
 	@Override
 	public void act(long now) {
 		if (((BallWorld) getWorld()).isPaused()) {
-
+			setX(pad.getX()+pad.getWidth()/2 - getWidth()/2);
+			setY(pad.getY()-pad.getHeight());
 		} else {
 			move(dx, dy);
-			if (getX() > getWorld().getWidth() - getWidth()|| getX() < 0) {
+			if (getX() > getWorld().getWidth() - getWidth()) {
 				dx = -dx;
+				setX(getWorld().getWidth() - getWidth());
+				bounceSound.play();
+				
+			}
+			
+			if (getX() < 0) {
+				dx = -dx;
+				setX(0);
 				bounceSound.play();
 			}
 
@@ -74,13 +85,15 @@ public class Ball extends Actor {
 				((BallWorld) getWorld()).getScore().setScore(((BallWorld) getWorld()).getScore().getScore() + 100);
 				
 				
-				FadeTransition ft = new FadeTransition(Duration.millis(300), brick);
+				FadeTransition ft = new FadeTransition(Duration.millis(100), brick);
 				ft.setFromValue(1.0);
 				ft.setToValue(0.0);
+				((BallWorld) getWorld()).addAnimation(ft);
 				ft.setOnFinished(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent event) {
 						getWorld().remove(brick);
+						((BallWorld) getWorld()).removeAnimation(ft);
 					}
 				});
 				ft.play();

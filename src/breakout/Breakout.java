@@ -51,7 +51,7 @@ public class Breakout extends Application {
 		// BREAKOUT
 		playBtn.setOnAction(e -> {
 			BorderPane root2 = new BorderPane();
-			BallWorld ballWorld = new BallWorld(800,600, 10, stage, scene1);
+			BallWorld ballWorld = new BallWorld(800,600, stage, scene1);
 			root2.setCenter(ballWorld);
 			Scene scene2 = new Scene(root2);
 			stage.setScene(scene2);
